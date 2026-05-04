@@ -7,4 +7,15 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  server: {
+    host: "0.0.0.0",
+    hmr: {
+      clientPort: process.env.HMR_CLIENT_PORT
+        ? parseInt(process.env.HMR_CLIENT_PORT)
+        : undefined,
+    },
+    allowedHosts: [
+      "local.super-price-check.com"
+    ]
+  },
 });
