@@ -60,6 +60,18 @@ return [
             'report' => false,
         ],
 
+        'garage' => [
+            'driver' => 's3',
+            'key' => env('GARAGE_ACCESS_KEY_ID'),
+            'secret' => env('GARAGE_SECRET_ACCESS_KEY'),
+            'region' => 'garage',
+            'bucket' => env('GARAGE_BUCKET', 'app-storage'),
+            'endpoint' => env('GARAGE_ENDPOINT', 'http://garage:3900'),
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

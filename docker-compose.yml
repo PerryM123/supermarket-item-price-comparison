@@ -20,6 +20,20 @@ services:
     environment:
       HMR_CLIENT_PORT: 8082
 
+  garage:
+    image: dxflrs/garage:v2.3.0
+    command: /garage server --single-node --default-bucket
+    environment:
+      GARAGE_DEFAULT_ACCESS_KEY: garage_access_key
+      GARAGE_DEFAULT_SECRET_KEY: garage_secret_key_change_me
+      GARAGE_DEFAULT_BUCKET: app-storage
+    volumes:
+      - ./docker/garage/garage.toml:/etc/garage.toml
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+    ports:
+      - "3900:3900"
+
   backend:
     build:
       context: ./docker/backend
@@ -27,6 +41,7 @@ services:
       - ./backend:/var/www/html
     depends_on:
       - postgres
+      - garage
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: postgres
@@ -34,6 +49,10 @@ services:
       DB_DATABASE: app
       DB_USERNAME: app
       DB_PASSWORD: secret
+      GARAGE_ACCESS_KEY_ID: garage_access_key
+      GARAGE_SECRET_ACCESS_KEY: garage_secret_key_change_me
+      GARAGE_BUCKET: app-storage
+      GARAGE_ENDPOINT: http://garage:3900
 
   postgres:
     image: postgres:16-alpine
@@ -48,3 +67,5 @@ services:
 
 volumes:
   postgres_data:
+  garage_meta:
+  garage_data:
