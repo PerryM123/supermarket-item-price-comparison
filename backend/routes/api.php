@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\SupermarketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,5 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::get('/hello-world', [ItemController::class, 'index']);
+Route::apiResource('items', ItemController::class);
+Route::apiResource('supermarkets', SupermarketController::class);
+
 Route::get('/health', fn() => response('ok', 200));
