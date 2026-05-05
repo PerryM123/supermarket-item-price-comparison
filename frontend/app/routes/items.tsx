@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import type { Route } from "./+types/items";
+import { API_BASE } from "~/lib/api";
 
 interface Items {
   id: number
@@ -22,7 +23,7 @@ export default function Items() {
     const fetchItems = async ()  => {
       try {
         // TODO: Need to try out react query or something
-        const response = await fetch('http://local.super-price-check.com:8082/api/items');
+        const response = await fetch(`${API_BASE}/items`);
         console.log('perry: response: ', response);
         if (!response.ok) throw new Error('Network error');
         const result = await response.json();

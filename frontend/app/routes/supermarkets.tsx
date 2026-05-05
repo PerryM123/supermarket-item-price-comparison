@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import type { Route } from "./+types/supermarkets";
+import { API_BASE } from "~/lib/api";
 
 interface Supermarket {
   id: number;
@@ -16,7 +17,7 @@ export default function Supermarkets() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("http://local.super-price-check.com:8082/api/supermarkets")
+    fetch(`${API_BASE}/supermarkets`)
       .then((r) => r.json())
       .then((data) => setSupermarkets(data.supermarkets ?? []))
       .catch(() => {});

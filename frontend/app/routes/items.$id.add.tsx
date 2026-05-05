@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/items.$id.add";
+import { API_BASE } from "~/lib/api";
 
 interface ItemSummary {
   name: string;
@@ -21,7 +22,6 @@ function formatDate(iso: string): string {
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-const BASE = "http://local.super-price-check.com:8082/api";
 
 export default function ItemAdd({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${BASE}/items/${params.id}`)
+    fetch(`${API_BASE}/items/${params.id}`)
       .then((r) => r.json())
       .then((data) => {
         setItem(data);
@@ -41,7 +41,7 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
       })
       .catch(() => {});
 
-    fetch(`${BASE}/supermarkets`)
+    fetch(`${API_BASE}/supermarkets`)
       .then((r) => r.json())
       .then((data) => {
         setSupermarkets(data.supermarkets ?? []);
@@ -55,7 +55,7 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch(`${BASE}/items/${params.id}/prices`, {
+      const res = await fetch(`${API_BASE}/items/${params.id}/prices`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ supermarket_id: Number(supermarketId), price: Number(price) }),

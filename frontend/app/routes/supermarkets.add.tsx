@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/supermarkets.add";
+import { API_BASE } from "~/lib/api";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "スーパー追加" }];
@@ -17,7 +18,7 @@ export default function SupermarketsAdd() {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch("http://local.super-price-check.com:8082/api/supermarkets", {
+      const res = await fetch(`${API_BASE}/supermarkets`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),

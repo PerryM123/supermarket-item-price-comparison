@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/supermarkets.edit";
+import { API_BASE } from "~/lib/api";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "スーパー編集" }];
 }
 
-const BASE = "http://local.super-price-check.com:8082/api";
 
 export default function SupermarketsEdit({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function SupermarketsEdit({ params }: Route.ComponentProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${BASE}/supermarkets/${params.id}`)
+    fetch(`${API_BASE}/supermarkets/${params.id}`)
       .then((r) => r.json())
       .then((data) => setName(data.name ?? ""))
       .catch(() => {});
@@ -26,7 +26,7 @@ export default function SupermarketsEdit({ params }: Route.ComponentProps) {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch(`${BASE}/supermarkets/${params.id}`, {
+      const res = await fetch(`${API_BASE}/supermarkets/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),

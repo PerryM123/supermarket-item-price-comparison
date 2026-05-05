@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import type { Route } from "./+types/items.$id";
+import { API_BASE } from "~/lib/api";
 
 interface Price {
   id: number;
@@ -31,7 +32,7 @@ export default function ItemDetail({ params }: Route.ComponentProps) {
 
   useEffect(() => {
     console.log('perry: params.id: ', params.id);
-    fetch(`http://local.super-price-check.com:8082/api/items/${params.id}`)
+    fetch(`${API_BASE}/items/${params.id}`)
       .then((r) => r.json())
       .then(setItem)
       .catch(() => {});

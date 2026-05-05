@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/items.$id.prices.$priceId.edit";
+import { API_BASE } from "~/lib/api";
 
 interface Supermarket {
   id: number;
@@ -16,7 +17,6 @@ function formatDate(iso: string): string {
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-const BASE = "http://local.super-price-check.com:8082/api";
 
 export default function ItemPriceEdit({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ export default function ItemPriceEdit({ params }: Route.ComponentProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${BASE}/items/${params.id}`)
+    fetch(`${API_BASE}/items/${params.id}`)
       .then((r) => r.json())
       .then((data) => {
         setUpdatedAt(data.updated_at ?? null);
@@ -42,7 +42,7 @@ export default function ItemPriceEdit({ params }: Route.ComponentProps) {
       })
       .catch(() => {});
 
-    fetch(`${BASE}/supermarkets`)
+    fetch(`${API_BASE}/supermarkets`)
       .then((r) => r.json())
       .then((data) => setSupermarkets(data.supermarkets ?? []))
       .catch(() => {});
@@ -53,7 +53,7 @@ export default function ItemPriceEdit({ params }: Route.ComponentProps) {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch(`${BASE}/items/${params.id}/prices/${params.priceId}`, {
+      const res = await fetch(`${API_BASE}/items/${params.id}/prices/${params.priceId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ supermarket_id: Number(supermarketId), price: Number(price) }),

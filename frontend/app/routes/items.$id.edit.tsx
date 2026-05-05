@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/items.$id.edit";
+import { API_BASE } from "~/lib/api";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "商品編集" }];
 }
 
-const BASE = "http://local.super-price-check.com:8082/api";
 
 export default function ItemEdit({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export default function ItemEdit({ params }: Route.ComponentProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch(`${BASE}/items/${params.id}`)
+    fetch(`${API_BASE}/items/${params.id}`)
       .then((r) => r.json())
       .then((data) => {
         setName(data.name ?? "");
@@ -54,7 +54,7 @@ export default function ItemEdit({ params }: Route.ComponentProps) {
       formData.append("_method", "PUT");
       formData.append("name", name);
       if (newImage) formData.append("image", newImage);
-      const res = await fetch(`${BASE}/items/${params.id}`, {
+      const res = await fetch(`${API_BASE}/items/${params.id}`, {
         method: "POST",
         body: formData,
       });

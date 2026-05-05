@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/items.add";
+import { API_BASE } from "~/lib/api";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "商品追加" }];
@@ -36,7 +37,7 @@ export default function ItemsAdd() {
       const formData = new FormData();
       formData.append("name", name);
       if (image) formData.append("image", image);
-      const res = await fetch("http://local.super-price-check.com:8082/api/items", {
+      const res = await fetch(`${API_BASE}/items`, {
         method: "POST",
         body: formData,
       });
