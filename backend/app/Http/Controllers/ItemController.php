@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -24,11 +25,17 @@ class ItemController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'image_url' => 'nullable|url|max:255',
+            'name'  => 'required|string|max:255',
+            'image' => 'nullable|image|max:5120',
         ]);
 
-        $item = Item::create($validated);
+        $imageUrl = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->storePublicly('items', 'garage');
+            $imageUrl = $this->garagePublicUrl($path);
+        }
+
+        $item = Item::create(['name' => $validated['name'], 'image_url' => $imageUrl]);
 
         return response()->json($item, 201);
     }
@@ -54,10 +61,17 @@ class ItemController extends Controller
     public function update(Request $request, Item $item): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'image_url' => 'nullable|url|max:255',
+            'name'  => 'sometimes|required|string|max:255',
+            'image' => 'nullable|image|max:5120',
         ]);
 
+        if ($request->hasFile('image')) {
+            $this->deleteOldImage($item->image_url);
+            $path = $request->file('image')->storePublicly('items', 'garage');
+            $validated['image_url'] = $this->garagePublicUrl($path);
+        }
+
+        unset($validated['image']);
         $item->update($validated);
 
         return response()->json($item);
@@ -68,5 +82,27 @@ class ItemController extends Controller
         $item->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function garagePublicUrl(string $path): string
+    {
+        $base   = rtrim(config('filesystems.disks.garage.public_url'), '/');
+        $bucket = config('filesystems.disks.garage.bucket');
+        return "{$base}/{$bucket}/{$path}";
+    }
+
+    private function deleteOldImage(?string $imageUrl): void
+    {
+        if (!$imageUrl) {
+            return;
+        }
+
+        $base   = rtrim(config('filesystems.disks.garage.public_url'), '/');
+        $bucket = config('filesystems.disks.garage.bucket');
+        $prefix = "{$base}/{$bucket}/";
+
+        if (str_starts_with($imageUrl, $prefix)) {
+            Storage::disk('garage')->delete(substr($imageUrl, strlen($prefix)));
+        }
     }
 }

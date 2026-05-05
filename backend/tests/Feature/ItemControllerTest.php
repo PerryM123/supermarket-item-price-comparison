@@ -6,6 +6,8 @@ use App\Models\Item;
 use App\Models\ItemPrice;
 use App\Models\Supermarket;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ItemControllerTest extends TestCase
@@ -47,15 +49,19 @@ class ItemControllerTest extends TestCase
         $this->assertDatabaseHas('items', ['name' => 'Bread']);
     }
 
-    public function test_store_accepts_optional_image_url(): void
+    public function test_store_uploads_image_to_garage(): void
     {
-        $response = $this->postJson('/api/items', [
-            'name'      => 'Milk',
-            'image_url' => 'https://example.com/milk.jpg',
+        Storage::fake('garage');
+        $file = UploadedFile::fake()->create('milk.jpg', 100, 'image/jpeg');
+
+        $response = $this->post('/api/items', [
+            'name'  => 'Milk',
+            'image' => $file,
         ]);
 
-        $response->assertCreated()
-            ->assertJsonFragment(['image_url' => 'https://example.com/milk.jpg']);
+        $response->assertCreated();
+        $this->assertNotNull($response->json('image_url'));
+        Storage::disk('garage')->assertExists('items/' . $file->hashName());
     }
 
     public function test_store_rejects_missing_name(): void
@@ -63,11 +69,11 @@ class ItemControllerTest extends TestCase
         $this->postJson('/api/items', [])->assertUnprocessable();
     }
 
-    public function test_store_rejects_invalid_image_url(): void
+    public function test_store_rejects_non_image_file(): void
     {
         $this->postJson('/api/items', [
-            'name'      => 'Eggs',
-            'image_url' => 'not-a-url',
+            'name'  => 'Eggs',
+            'image' => UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
         ])->assertUnprocessable();
     }
 
@@ -129,24 +135,26 @@ class ItemControllerTest extends TestCase
         $this->assertDatabaseHas('items', ['id' => $item->id, 'name' => 'New Name']);
     }
 
-    public function test_update_modifies_image_url(): void
+    public function test_update_uploads_new_image(): void
     {
+        Storage::fake('garage');
         $item = Item::factory()->create(['image_url' => null]);
+        $file = UploadedFile::fake()->create('new.jpg', 100, 'image/jpeg');
 
-        $response = $this->patchJson("/api/items/{$item->id}", ['image_url' => 'https://example.com/new.jpg']);
+        $response = $this->patch("/api/items/{$item->id}", ['image' => $file]);
 
-        $response->assertOk()
-            ->assertJsonFragment(['image_url' => 'https://example.com/new.jpg']);
-
-        $this->assertDatabaseHas('items', ['id' => $item->id, 'image_url' => 'https://example.com/new.jpg']);
+        $response->assertOk();
+        $this->assertNotNull($response->json('image_url'));
+        Storage::disk('garage')->assertExists('items/' . $file->hashName());
     }
 
-    public function test_update_rejects_invalid_image_url(): void
+    public function test_update_rejects_non_image_file(): void
     {
         $item = Item::factory()->create();
 
-        $this->patchJson("/api/items/{$item->id}", ['image_url' => 'bad-url'])
-            ->assertUnprocessable();
+        $this->patchJson("/api/items/{$item->id}", [
+            'image' => UploadedFile::fake()->create('doc.pdf', 100, 'application/pdf'),
+        ])->assertUnprocessable();
     }
 
     public function test_update_returns_404_for_nonexistent_item(): void

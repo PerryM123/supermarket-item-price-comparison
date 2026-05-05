@@ -67,6 +67,7 @@ return [
             'region' => 'garage',
             'bucket' => env('GARAGE_BUCKET', 'app-storage'),
             'endpoint' => env('GARAGE_ENDPOINT', 'http://garage:3900'),
+            'public_url' => env('GARAGE_PUBLIC_URL', env('GARAGE_ENDPOINT', 'http://garage:3900')),
             'use_path_style_endpoint' => true,
             'throw' => false,
             'report' => false,

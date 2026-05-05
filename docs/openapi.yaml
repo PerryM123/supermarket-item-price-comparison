@@ -46,7 +46,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/ItemRequest"
       responses:
@@ -84,7 +84,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/ItemRequest"
       responses:
@@ -106,7 +106,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/ItemPatchRequest"
       responses:
@@ -312,12 +312,11 @@ components:
           type: string
           maxLength: 255
           example: Whole Milk 2L
-        image_url:
+        image:
           type: string
-          format: uri
-          maxLength: 255
+          format: binary
           nullable: true
-          example: https://example.com/milk.jpg
+          description: Image file upload (jpeg, png, gif, webp, svg — max 5 MB)
 
     ItemPatchRequest:
       type: object
@@ -326,12 +325,11 @@ components:
           type: string
           maxLength: 255
           example: Whole Milk 2L
-        image_url:
+        image:
           type: string
-          format: uri
-          maxLength: 255
+          format: binary
           nullable: true
-          example: https://example.com/milk.jpg
+          description: Image file upload (jpeg, png, gif, webp, svg — max 5 MB)
 
     Supermarket:
       type: object
