@@ -14,7 +14,7 @@ class ItemController extends Controller
         $items = Item::all()->map(fn($item) => [
             'id'         => $item->id,
             'name'       => $item->name,
-            'image_url'  => $item->image_url,
+            'image_url'  => $this->imageUrl($item->image_url),
             'created_at' => $item->created_at->format('Y-m-d\TH:i:s\Z'),
             'updated_at' => $item->updated_at->format('Y-m-d\TH:i:s\Z'),
         ]);
@@ -29,13 +29,12 @@ class ItemController extends Controller
             'image' => 'nullable|image|max:5120',
         ]);
 
-        $imageUrl = null;
+        $imagePath = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->storePublicly('items', 'garage');
-            $imageUrl = $this->garagePublicUrl($path);
+            $imagePath = $request->file('image')->store('items', 'garage');
         }
 
-        $item = Item::create(['name' => $validated['name'], 'image_url' => $imageUrl]);
+        $item = Item::create(['name' => $validated['name'], 'image_url' => $imagePath]);
 
         return response()->json($item, 201);
     }
@@ -47,7 +46,7 @@ class ItemController extends Controller
         return response()->json([
             'id'         => $item->id,
             'name'       => $item->name,
-            'image_url'  => $item->image_url,
+            'image_url'  => $this->imageUrl($item->image_url),
             'created_at' => $item->created_at->format('Y-m-d\TH:i:s\Z'),
             'updated_at' => $item->updated_at->format('Y-m-d\TH:i:s\Z'),
             'prices'     => $item->prices->map(fn($p) => [
@@ -67,8 +66,7 @@ class ItemController extends Controller
 
         if ($request->hasFile('image')) {
             $this->deleteOldImage($item->image_url);
-            $path = $request->file('image')->storePublicly('items', 'garage');
-            $validated['image_url'] = $this->garagePublicUrl($path);
+            $validated['image_url'] = $request->file('image')->store('items', 'garage');
         }
 
         unset($validated['image']);
@@ -84,25 +82,38 @@ class ItemController extends Controller
         return response()->json(null, 204);
     }
 
-    private function garagePublicUrl(string $path): string
+    private function imageUrl(?string $stored): ?string
     {
-        $base   = rtrim(config('filesystems.disks.garage.public_url'), '/');
-        $bucket = config('filesystems.disks.garage.bucket');
-        return "{$base}/{$bucket}/{$path}";
+        if (!$stored) {
+            return null;
+        }
+
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('garage-public');
+
+        return $disk->temporaryUrl($this->extractPath($stored), now()->addHour());
     }
 
-    private function deleteOldImage(?string $imageUrl): void
+    private function extractPath(string $stored): string
     {
-        if (!$imageUrl) {
+        // Handle legacy rows that stored the full URL
+        $base   = rtrim(config('filesystems.disks.garage-public.endpoint'), '/');
+        $bucket = config('filesystems.disks.garage-public.bucket');
+        $prefix = "{$base}/{$bucket}/";
+
+        if (str_starts_with($stored, $prefix)) {
+            return substr($stored, strlen($prefix));
+        }
+
+        return $stored;
+    }
+
+    private function deleteOldImage(?string $stored): void
+    {
+        if (!$stored) {
             return;
         }
 
-        $base   = rtrim(config('filesystems.disks.garage.public_url'), '/');
-        $bucket = config('filesystems.disks.garage.bucket');
-        $prefix = "{$base}/{$bucket}/";
-
-        if (str_starts_with($imageUrl, $prefix)) {
-            Storage::disk('garage')->delete(substr($imageUrl, strlen($prefix)));
-        }
+        Storage::disk('garage')->delete($this->extractPath($stored));
     }
 }
