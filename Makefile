@@ -14,6 +14,9 @@ laravel-migrate-seed:
 laravel-migrate-seed-refresh:
 	docker compose exec backend php artisan migrate:refresh --seed
 
+laravel-migrate-fresh:
+	docker compose exec backend php artisan migrate:fresh
+
 up:
 	docker-compose up -d
 
