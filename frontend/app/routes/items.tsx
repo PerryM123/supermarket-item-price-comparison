@@ -91,14 +91,14 @@ export default function Items() {
           ))}
         </div>
       </div>
-
-      <button
+      <Link
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full text-white text-3xl flex items-center justify-center shadow-lg"
         style={{ backgroundColor: "#2196F3" }}
         aria-label="商品を追加"
+        to={`/items/add`}
       >
         +
-      </button>
+      </Link>
     </div>
   );
 }
