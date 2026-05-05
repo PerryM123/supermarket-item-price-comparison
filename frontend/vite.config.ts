@@ -14,8 +14,8 @@ export default defineConfig({
         ? parseInt(process.env.HMR_CLIENT_PORT)
         : undefined,
     },
-    allowedHosts: [
-      "local.super-price-check.com"
-    ]
+    allowedHosts: process.env.VITE_ALLOWED_HOST
+      ? [process.env.VITE_ALLOWED_HOST]
+      : ["local.super-price-check.com"]
   },
 });
