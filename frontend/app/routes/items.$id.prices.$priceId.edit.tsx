@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import type { Route } from "./+types/items.$id.add";
-
-interface ItemSummary {
-  name: string;
-  updated_at: string;
-}
+import type { Route } from "./+types/items.$id.prices.$priceId.edit";
 
 interface Supermarket {
   id: number;
@@ -13,7 +8,7 @@ interface Supermarket {
 }
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "スーパーの追加" }];
+  return [{ title: "価格の編集" }];
 }
 
 function formatDate(iso: string): string {
@@ -23,9 +18,9 @@ function formatDate(iso: string): string {
 
 const BASE = "http://local.super-price-check.com:8082/api";
 
-export default function ItemAdd({ params }: Route.ComponentProps) {
+export default function ItemPriceEdit({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
-  const [item, setItem] = useState<ItemSummary | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [supermarkets, setSupermarkets] = useState<Supermarket[]>([]);
   const [supermarketId, setSupermarketId] = useState("");
   const [price, setPrice] = useState("");
@@ -35,17 +30,23 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
   useEffect(() => {
     fetch(`${BASE}/items/${params.id}`)
       .then((r) => r.json())
-      .then(setItem)
+      .then((data) => {
+        setUpdatedAt(data.updated_at ?? null);
+        const match = data.prices?.find(
+          (p: { id: number }) => String(p.id) === params.priceId
+        );
+        if (match) {
+          setPrice(String(match.price));
+          setSupermarketId(String(match.supermarket.id));
+        }
+      })
       .catch(() => {});
 
     fetch(`${BASE}/supermarkets`)
       .then((r) => r.json())
-      .then((data) => {
-        setSupermarkets(data.supermarkets ?? []);
-        if (data.supermarkets?.length) setSupermarketId(String(data.supermarkets[0].id));
-      })
+      .then((data) => setSupermarkets(data.supermarkets ?? []))
       .catch(() => {});
-  }, [params.id]);
+  }, [params.id, params.priceId]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,7 +54,7 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
     setSubmitting(true);
     try {
       // TODO: replace with real item-price endpoint when available
-      // POST /api/items/:id/prices  { supermarket_id, price }
+      // PUT /api/items/:id/prices/:priceId  { supermarket_id, price }
       await Promise.resolve();
       navigate(`/items/${params.id}`);
     } catch {
@@ -67,23 +68,21 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
     <div className="min-h-screen bg-white">
       <div className="max-w-lg mx-auto px-5 pt-6 pb-16">
 
-        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            スーパー＆価格の追加
+          <h1 className="text-xl font-semibold text-gray-900 mb-1">
+            価格の編集
           </h1>
-          {item && (
+          {updatedAt && (
             <p className="text-xs text-gray-400">
-              最終更新: {formatDate(item.updated_at)}
+              最終更新: {formatDate(updatedAt)}
             </p>
           )}
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="supermarket" className="text-sm font-medium text-gray-700">
+            <label htmlFor="supermarket" className="text-sm font-semibold text-gray-800">
               スーパーの名前
             </label>
             <select
@@ -102,7 +101,7 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="price" className="text-sm font-medium text-gray-700">
+            <label htmlFor="price" className="text-sm font-semibold text-gray-800">
               価格
             </label>
             <input

@@ -83,8 +83,10 @@ export default function Items() {
               to={`/items/${item.id}`}
               className="flex flex-col items-center gap-2"
             >
-              <div className="w-full aspect-square bg-gray-100 rounded-xl">
-                <img className="perry" src={item.imageUrl} alt={item.name} />
+              <div className="w-full aspect-square rounded-xl">
+                <div className="flex items-center h-full">
+                  <img className="perry" src={item.imageUrl} alt={item.name} />
+                </div>
               </div>
               <span className="text-sm text-gray-800">{item.name}</span>
             </Link>
@@ -95,6 +97,7 @@ export default function Items() {
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full text-white text-3xl flex items-center justify-center shadow-lg"
         style={{ backgroundColor: "#2196F3" }}
         aria-label="商品を追加"
+        // TODO: 
         to={`/items/add`}
       >
         +

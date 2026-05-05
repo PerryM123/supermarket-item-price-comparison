@@ -1,47 +1,30 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import type { Route } from "./+types/items.$id.edit";
+import type { Route } from "./+types/items.add";
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "商品編集" }];
+  return [{ title: "商品追加" }];
 }
 
-const BASE = "http://local.super-price-check.com:8082/api";
-
-export default function ItemEdit({ params }: Route.ComponentProps) {
+export default function ItemsAdd() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
-  // Tracks the existing remote URL (shown until user picks a new file or removes it)
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
-  // Tracks a newly picked local file
-  const [newImage, setNewImage] = useState<File | null>(null);
-  const [newPreview, setNewPreview] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    fetch(`${BASE}/items/${params.id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setName(data.name ?? "");
-        setExistingImageUrl(data.image_url ?? null);
-      })
-      .catch(() => {});
-  }, [params.id]);
-
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setNewImage(file);
-    setNewPreview(URL.createObjectURL(file));
-    setExistingImageUrl(null);
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
   }
 
   function removeImage() {
-    setNewImage(null);
-    setNewPreview(null);
-    setExistingImageUrl(null);
+    setImage(null);
+    setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -51,15 +34,14 @@ export default function ItemEdit({ params }: Route.ComponentProps) {
     setSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append("_method", "PUT");
       formData.append("name", name);
-      if (newImage) formData.append("image", newImage);
-      const res = await fetch(`${BASE}/items/${params.id}`, {
+      if (image) formData.append("image", image);
+      const res = await fetch("http://local.super-price-check.com:8082/api/items", {
         method: "POST",
         body: formData,
       });
       if (!res.ok) throw new Error();
-      navigate(`/items/${params.id}`);
+      navigate("/items");
     } catch {
       setError("保存に失敗しました。もう一度お試しください。");
     } finally {
@@ -67,14 +49,12 @@ export default function ItemEdit({ params }: Route.ComponentProps) {
     }
   }
 
-  const previewSrc = newPreview ?? existingImageUrl;
-
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-lg mx-auto px-5 pt-6 pb-16">
 
         <h1 className="text-xl font-semibold text-center text-gray-900 mb-8">
-          商品編集
+          商品追加
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
@@ -103,10 +83,10 @@ export default function ItemEdit({ params }: Route.ComponentProps) {
               onChange={handleImageChange}
               className="hidden"
             />
-            {previewSrc ? (
+            {preview ? (
               <div className="relative">
                 <img
-                  src={previewSrc}
+                  src={preview}
                   alt="プレビュー"
                   className="w-full rounded-2xl object-cover"
                 />
@@ -148,7 +128,7 @@ export default function ItemEdit({ params }: Route.ComponentProps) {
               {submitting ? "保存中..." : "保存"}
             </button>
             <Link
-              to={`/items/${params.id}`}
+              to="/items"
               className="block w-full py-3 border border-gray-300 rounded-full text-sm text-center text-gray-600 hover:border-gray-400 transition-colors"
             >
               キャンセル
