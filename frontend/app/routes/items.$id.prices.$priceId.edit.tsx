@@ -53,9 +53,12 @@ export default function ItemPriceEdit({ params }: Route.ComponentProps) {
     setError(null);
     setSubmitting(true);
     try {
-      // TODO: replace with real item-price endpoint when available
-      // PUT /api/items/:id/prices/:priceId  { supermarket_id, price }
-      await Promise.resolve();
+      const res = await fetch(`${BASE}/items/${params.id}/prices/${params.priceId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ supermarket_id: Number(supermarketId), price: Number(price) }),
+      });
+      if (!res.ok) throw new Error();
       navigate(`/items/${params.id}`);
     } catch {
       setError("保存に失敗しました。もう一度お試しください。");

@@ -35,7 +35,10 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
   useEffect(() => {
     fetch(`${BASE}/items/${params.id}`)
       .then((r) => r.json())
-      .then(setItem)
+      .then((data) => {
+        setItem(data);
+        document.title = `${data.name}の価格追加`;
+      })
       .catch(() => {});
 
     fetch(`${BASE}/supermarkets`)
@@ -52,9 +55,12 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
     setError(null);
     setSubmitting(true);
     try {
-      // TODO: replace with real item-price endpoint when available
-      // POST /api/items/:id/prices  { supermarket_id, price }
-      await Promise.resolve();
+      const res = await fetch(`${BASE}/items/${params.id}/prices`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ supermarket_id: Number(supermarketId), price: Number(price) }),
+      });
+      if (!res.ok) throw new Error();
       navigate(`/items/${params.id}`);
     } catch {
       setError("保存に失敗しました。もう一度お試しください。");
@@ -70,7 +76,7 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            スーパー＆価格の追加
+            {item ? `${item.name}の価格追加` : "スーパー＆価格の追加"}
           </h1>
           {item && (
             <p className="text-xs text-gray-400">

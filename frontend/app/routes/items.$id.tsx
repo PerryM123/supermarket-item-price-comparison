@@ -106,9 +106,17 @@ export default function ItemDetail({ params }: Route.ComponentProps) {
                 className="flex items-center justify-between px-4 py-3 border-t border-gray-100"
               >
                 <span className="text-sm text-gray-800">{p.supermarket.name}</span>
-                <span className="text-sm font-medium text-gray-800">
-                  {p.price.toLocaleString()}円
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-800">
+                    {p.price.toLocaleString()}円
+                  </span>
+                  <Link
+                    to={`/items/${params.id}/prices/${p.id}/edit`}
+                    className="text-xs text-gray-400 hover:text-gray-600"
+                  >
+                    編集
+                  </Link>
+                </div>
               </div>
             ))
           )}
