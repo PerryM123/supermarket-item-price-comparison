@@ -16,8 +16,7 @@ class SupermarketController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'      => 'required|string|max:255',
-            'image_url' => 'nullable|url|max:255',
+            'name' => 'required|string|max:255',
         ]);
 
         $supermarket = Supermarket::create($validated);
@@ -33,8 +32,7 @@ class SupermarketController extends Controller
     public function update(Request $request, Supermarket $supermarket): JsonResponse
     {
         $validated = $request->validate([
-            'name'      => 'sometimes|required|string|max:255',
-            'image_url' => 'nullable|url|max:255',
+            'name' => 'sometimes|required|string|max:255',
         ]);
 
         $supermarket->update($validated);
