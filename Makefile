@@ -18,10 +18,10 @@ laravel-migrate-fresh:
 	docker compose exec backend php artisan migrate:fresh
 
 up:
-	docker-compose up -d
+	docker compose up -d
 
 down:
-	docker-compose down
+	docker compose down
 
 build:
 	docker compose up --build
@@ -30,4 +30,4 @@ restart:
 	docker compose restart
 
 up-build:
-	docker-compose up -d --build
+	docker compose up -d --build
