@@ -1,0 +1,404 @@
+openapi: 3.0.3
+info:
+  title: Supermarket Item Price Comparison API
+  version: 1.0.0
+
+servers:
+  - url: http://local.super-price-check.com:8082
+
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      operationId: health
+      tags: [Health]
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ok
+
+  /api/items:
+    get:
+      summary: List all items
+      operationId: listItems
+      tags: [Items]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ItemSummary"
+
+    post:
+      summary: Create an item
+      operationId: createItem
+      tags: [Items]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemSummary"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/items/{id}:
+    parameters:
+      - $ref: "#/components/parameters/id"
+
+    get:
+      summary: Get an item with its prices
+      operationId: showItem
+      tags: [Items]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      summary: Replace an item
+      operationId: updateItem
+      tags: [Items]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemSummary"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+    patch:
+      summary: Partially update an item
+      operationId: patchItem
+      tags: [Items]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemPatchRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemSummary"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+    delete:
+      summary: Delete an item
+      operationId: deleteItem
+      tags: [Items]
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/supermarkets:
+    get:
+      summary: List all supermarkets
+      operationId: listSupermarkets
+      tags: [Supermarkets]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  supermarkets:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Supermarket"
+
+    post:
+      summary: Create a supermarket
+      operationId: createSupermarket
+      tags: [Supermarkets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupermarketRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supermarket"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/supermarkets/{id}:
+    parameters:
+      - $ref: "#/components/parameters/id"
+
+    get:
+      summary: Get a supermarket
+      operationId: showSupermarket
+      tags: [Supermarkets]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supermarket"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      summary: Replace a supermarket
+      operationId: updateSupermarket
+      tags: [Supermarkets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupermarketRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supermarket"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+    patch:
+      summary: Partially update a supermarket
+      operationId: patchSupermarket
+      tags: [Supermarkets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupermarketPatchRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supermarket"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+    delete:
+      summary: Delete a supermarket
+      operationId: deleteSupermarket
+      tags: [Supermarkets]
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
+
+  schemas:
+    ItemSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Whole Milk 2L
+        image_url:
+          type: string
+          nullable: true
+          example: https://example.com/milk.jpg
+        created_at:
+          type: string
+          format: date-time
+          description: "UTC timestamp in ISO 8601 format"
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: "UTC timestamp in ISO 8601 format"
+          example: "2024-01-15T10:30:00Z"
+
+    ItemDetail:
+      allOf:
+        - $ref: "#/components/schemas/ItemSummary"
+        - type: object
+          properties:
+            prices:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 3
+                  price:
+                    type: number
+                    format: float
+                    example: 1.49
+                  supermarket:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 2
+                      name:
+                        type: string
+                        example: Tesco
+
+    ItemRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: Whole Milk 2L
+        image_url:
+          type: string
+          format: uri
+          maxLength: 255
+          nullable: true
+          example: https://example.com/milk.jpg
+
+    ItemPatchRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: Whole Milk 2L
+        image_url:
+          type: string
+          format: uri
+          maxLength: 255
+          nullable: true
+          example: https://example.com/milk.jpg
+
+    Supermarket:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Tesco
+        created_at:
+          type: string
+          format: date-time
+          description: "UTC timestamp in ISO 8601 format"
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: "UTC timestamp in ISO 8601 format"
+          example: "2024-01-15T10:30:00Z"
+
+    SupermarketRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: Tesco
+
+    SupermarketPatchRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: Tesco
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: No query results for model.
+
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: The name field is required.
+              errors:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  name:
+                    - The name field is required.

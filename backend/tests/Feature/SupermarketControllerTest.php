@@ -103,4 +103,44 @@ class SupermarketControllerTest extends TestCase
     {
         $this->deleteJson('/api/supermarkets/9999')->assertNotFound();
     }
+
+
+    public function test_index_returns_timestamps_in_iso8601_utc_format(): void
+    {
+        Supermarket::factory()->create();
+
+        $response = $this->getJson('/api/supermarkets');
+
+        $supermarket = $response->json('supermarkets.0');
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $supermarket['created_at']);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $supermarket['updated_at']);
+    }
+
+    public function test_show_returns_timestamps_in_iso8601_utc_format(): void
+    {
+        $supermarket = Supermarket::factory()->create();
+
+        $response = $this->getJson("/api/supermarkets/{$supermarket->id}");
+
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('created_at'));
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('updated_at'));
+    }
+
+    public function test_store_returns_timestamps_in_iso8601_utc_format(): void
+    {
+        $response = $this->postJson('/api/supermarkets', ['name' => 'Tesco']);
+
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('created_at'));
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('updated_at'));
+    }
+
+    public function test_update_returns_timestamps_in_iso8601_utc_format(): void
+    {
+        $supermarket = Supermarket::factory()->create();
+
+        $response = $this->patchJson("/api/supermarkets/{$supermarket->id}", ['name' => 'Updated']);
+
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('created_at'));
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('updated_at'));
+    }
 }

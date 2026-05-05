@@ -168,4 +168,44 @@ class ItemControllerTest extends TestCase
     {
         $this->deleteJson('/api/items/9999')->assertNotFound();
     }
+
+
+    public function test_index_returns_timestamps_in_iso8601_utc_format(): void
+    {
+        Item::factory()->create();
+
+        $response = $this->getJson('/api/items');
+
+        $item = $response->json('items.0');
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $item['created_at']);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $item['updated_at']);
+    }
+
+    public function test_show_returns_timestamps_in_iso8601_utc_format(): void
+    {
+        $item = Item::factory()->create();
+
+        $response = $this->getJson("/api/items/{$item->id}");
+
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('created_at'));
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('updated_at'));
+    }
+
+    public function test_store_returns_timestamps_in_iso8601_utc_format(): void
+    {
+        $response = $this->postJson('/api/items', ['name' => 'Bread']);
+
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('created_at'));
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('updated_at'));
+    }
+
+    public function test_update_returns_timestamps_in_iso8601_utc_format(): void
+    {
+        $item = Item::factory()->create();
+
+        $response = $this->patchJson("/api/items/{$item->id}", ['name' => 'Updated']);
+
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('created_at'));
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $response->json('updated_at'));
+    }
 }

@@ -14,8 +14,8 @@ class ItemController extends Controller
             'id'         => $item->id,
             'name'       => $item->name,
             'image_url'  => $item->image_url,
-            'created_at' => $item->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $item->updated_at->format('Y-m-d H:i:s'),
+            'created_at' => $item->created_at->format('Y-m-d\TH:i:s\Z'),
+            'updated_at' => $item->updated_at->format('Y-m-d\TH:i:s\Z'),
         ]);
 
         return response()->json(['items' => $items]);
@@ -41,8 +41,8 @@ class ItemController extends Controller
             'id'         => $item->id,
             'name'       => $item->name,
             'image_url'  => $item->image_url,
-            'created_at' => $item->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $item->updated_at->format('Y-m-d H:i:s'),
+            'created_at' => $item->created_at->format('Y-m-d\TH:i:s\Z'),
+            'updated_at' => $item->updated_at->format('Y-m-d\TH:i:s\Z'),
             'prices'     => $item->prices->map(fn($p) => [
                 'id'          => $p->id,
                 'price'       => $p->price,
