@@ -35,7 +35,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Header />
-        <div className="pt-16">{children}</div>
+        <div className="pt-16 min-h-[calc(100vh-4rem)] flex flex-col">{children}</div>
         <ScrollRestoration />
         <Scripts />
       </body>

@@ -26,7 +26,7 @@ export default function Supermarkets() {
   const filtered = supermarkets.filter((s) => s.name.includes(search));
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex-1 bg-white">
       <div className="px-4 pt-4 pb-24">
         <h1 className="text-xl font-semibold text-center text-gray-900 mb-4">
           スーパー一覧

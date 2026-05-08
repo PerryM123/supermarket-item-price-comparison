@@ -70,7 +70,7 @@ export default function ItemAdd({ params }: Route.ComponentProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex-1 bg-white">
       <div className="max-w-lg mx-auto px-5 pt-6 pb-16">
 
         {/* Header */}

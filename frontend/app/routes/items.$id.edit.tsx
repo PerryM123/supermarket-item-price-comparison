@@ -70,7 +70,7 @@ export default function ItemEdit({ params }: Route.ComponentProps) {
   const previewSrc = newPreview ?? existingImageUrl;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex-1 bg-white">
       <div className="max-w-lg mx-auto px-5 pt-6 pb-16">
 
         <h1 className="text-xl font-semibold text-center text-gray-900 mb-8">

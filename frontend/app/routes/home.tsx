@@ -7,7 +7,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
+    <div className="flex-1 bg-white flex flex-col items-center justify-center px-6 text-center">
       <div className="max-w-sm w-full flex flex-col items-center gap-10">
         <div className="flex flex-col items-center gap-4">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
