@@ -49,10 +49,19 @@ export default function Items() {
 
   return (
     <div className="flex-1 bg-white">
-      <div className="px-4 pt-4 pb-24">
+      <div className="px-4 pt-4 pb-4">
         <h1 className="text-xl font-semibold text-center text-gray-900 mb-4">
           商品一覧
         </h1>
+        <div className="flex justify-center"> 
+          <Link
+            to="/items/add"
+            className="block w-55 py-3 rounded-full text-white text-sm font-medium transition-opacity disabled:opacity-50 text-center mb-6"
+            style={{ backgroundColor: "#f1582c" }}
+          >
+            商品追加
+          </Link>
+        </div>
 
         <div className="relative mb-5">
           <svg
@@ -94,15 +103,6 @@ export default function Items() {
           ))}
         </div>
       </div>
-      <Link
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full text-white text-3xl flex items-center justify-center shadow-lg"
-        style={{ backgroundColor: "#2196F3" }}
-        aria-label="商品を追加"
-        // TODO: 
-        to={`/items/add`}
-      >
-        +
-      </Link>
     </div>
   );
 }
