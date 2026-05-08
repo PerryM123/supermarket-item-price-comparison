@@ -1,0 +1,77 @@
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - ./backend:/var/www/html
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      HMR_CLIENT_PORT: 8082
+
+  garage:
+    image: dxflrs/garage:v2.3.0
+    restart: unless-stopped
+    command: /garage server --single-node --default-bucket
+    environment:
+      GARAGE_DEFAULT_ACCESS_KEY: garage_access_key
+      GARAGE_DEFAULT_SECRET_KEY: garage_secret_key_change_me
+      GARAGE_DEFAULT_BUCKET: app-storage
+    volumes:
+      - ./docker/garage/garage.toml:/etc/garage.toml
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+    ports:
+      - "3900:3900"
+
+  backend:
+    build:
+      context: ./docker/backend
+    restart: unless-stopped
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - postgres
+      - garage
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: app
+      DB_USERNAME: app
+      DB_PASSWORD: secret
+      GARAGE_ACCESS_KEY_ID: garage_access_key
+      GARAGE_SECRET_ACCESS_KEY: garage_secret_key_change_me
+      GARAGE_BUCKET: app-storage
+      GARAGE_ENDPOINT: http://garage:3900
+      GARAGE_PUBLIC_URL: ${GARAGE_PUBLIC_URL}
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+  garage_meta:
+  garage_data:
