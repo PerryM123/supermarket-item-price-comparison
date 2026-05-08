@@ -23,6 +23,9 @@ laravel-migrate-fresh:
 up:
 	docker compose up -d
 
+up-production:
+	docker compose -f docker-compose.production.yml up --build -d
+
 down:
 	docker compose down
 
