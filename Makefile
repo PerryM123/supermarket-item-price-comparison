@@ -8,6 +8,9 @@ laravel:
 laravel-logs:
 	docker compose exec backend tail -f storage/logs/laravel.log
 
+laravel-migrate:
+	docker compose exec backend php artisan migrate
+
 laravel-migrate-seed:
 	docker compose exec backend php artisan migrate --seed
 
