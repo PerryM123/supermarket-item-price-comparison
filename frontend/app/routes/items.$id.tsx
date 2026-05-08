@@ -127,7 +127,8 @@ export default function ItemDetail({ params }: Route.ComponentProps) {
         <div className="mt-6">
           <Link
             to={`/items/${params.id}/add`}
-            className="block w-full py-3 border border-gray-300 rounded-full text-sm text-center text-gray-600 hover:border-gray-400 transition-colors"
+            className="block w-full py-3 rounded-full text-white text-sm font-medium transition-opacity disabled:opacity-50 text-center"
+            style={{ backgroundColor: "#f1582c" }}
           >
             スーパー＆価格を追加
           </Link>
