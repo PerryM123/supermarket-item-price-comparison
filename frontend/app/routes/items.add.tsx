@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/items.add";
 import { API_BASE } from "~/lib/api";
+import PageContainer from "~/components/PageContainer";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "商品追加" }];
@@ -51,8 +52,7 @@ export default function ItemsAdd() {
   }
 
   return (
-    <div className="flex-1 bg-white">
-      <div className="max-w-lg mx-auto px-5 pt-6 pb-16">
+    <PageContainer>
 
         <h1 className="text-xl font-semibold text-center text-gray-900 mb-8">
           商品追加
@@ -137,7 +137,6 @@ export default function ItemsAdd() {
           </div>
 
         </form>
-      </div>
-    </div>
+    </PageContainer>
   );
 }

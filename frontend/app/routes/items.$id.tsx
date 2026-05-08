@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import type { Route } from "./+types/items.$id";
 import { API_BASE } from "~/lib/api";
+import PageContainer from "~/components/PageContainer";
 
 interface Price {
   id: number;
@@ -53,8 +54,7 @@ export default function ItemDetail({ params }: Route.ComponentProps) {
   }
 
   return (
-    <div className="flex-1 bg-white">
-      <div className="max-w-lg mx-auto px-5 pt-6 pb-16">
+    <PageContainer>
 
         {/* Item image */}
         {item.image_url ? (
@@ -134,7 +134,6 @@ export default function ItemDetail({ params }: Route.ComponentProps) {
           </Link>
         </div>
 
-      </div>
-    </div>
+    </PageContainer>
   );
 }

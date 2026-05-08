@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import type { Route } from "./+types/items.$id.prices.$priceId.edit";
 import { API_BASE } from "~/lib/api";
+import PageContainer from "~/components/PageContainer";
 
 interface Supermarket {
   id: number;
@@ -68,8 +69,7 @@ export default function ItemPriceEdit({ params }: Route.ComponentProps) {
   }
 
   return (
-    <div className="flex-1 bg-white">
-      <div className="max-w-lg mx-auto px-5 pt-6 pb-16">
+    <PageContainer>
 
         <div className="text-center mb-8">
           <h1 className="text-xl font-semibold text-gray-900 mb-1">
@@ -141,7 +141,6 @@ export default function ItemPriceEdit({ params }: Route.ComponentProps) {
           </div>
 
         </form>
-      </div>
-    </div>
+    </PageContainer>
   );
 }
