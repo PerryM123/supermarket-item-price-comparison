@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router";
 
+const SITE_NAME = 'いくらだったっけ？！'
+
 const navItems = [
   { label: "Home", to: "/" },
   { label: "商品一覧", to: "/items" },
@@ -18,7 +20,7 @@ export default function Header() {
           className="font-bold text-xl tracking-tight"
           style={{ color: "#f1582c" }}
         >
-          いくらだったっけ
+          { SITE_NAME }
         </Link>
         <button
           onClick={() => setIsOpen(true)}
@@ -45,7 +47,7 @@ export default function Header() {
       >
         <div className="flex items-center justify-between px-6 py-4">
           <span className="font-bold text-xl" style={{ color: "#f1582c" }}>
-            いくらだったっけ
+            { SITE_NAME }
           </span>
           <button
             onClick={() => setIsOpen(false)}

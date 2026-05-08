@@ -13,10 +13,8 @@ export default function Home() {
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
             スーパー比較
           </h1>
-          <p className="text-gray-500 text-sm leading-relaxed">
-            近くのスーパーマーケットの商品価格を
-            <br />
-            かんたんに比較できます。
+          <p className="text-gray-500 text-sm leading-relaxed max-w-45">
+            近くのスーパーの商品価格を簡単に比較できます
           </p>
         </div>
 
@@ -25,7 +23,7 @@ export default function Home() {
             to="/items"
             className="w-full py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg text-center transition-colors"
           >
-            商品一覧 →
+            商品一覧
           </Link>
           <Link
             to="/supermarkets"
