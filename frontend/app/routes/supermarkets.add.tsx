@@ -1,7 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { API_BASE } from "~/lib/api";
-import PageContainer from "~/components/PageContainer";
 
 export const Route = createFileRoute("/supermarkets/add")({
   component: SupermarketsAdd,
@@ -34,7 +33,7 @@ export default function SupermarketsAdd() {
   }
 
   return (
-    <PageContainer>
+    <>
       <h1 className="text-xl font-semibold text-center text-gray-900 mb-8">
         スーパー追加
       </h1>
@@ -76,6 +75,6 @@ export default function SupermarketsAdd() {
           </Link>
         </div>
       </form>
-    </PageContainer>
+    </>
   );
 }

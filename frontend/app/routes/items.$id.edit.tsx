@@ -1,7 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { API_BASE } from "~/lib/api";
-import PageContainer from "~/components/PageContainer";
 
 export const Route = createFileRoute("/items/$id/edit")({
   component: ItemEdit,
@@ -69,7 +68,7 @@ export default function ItemEdit() {
   const previewSrc = newPreview ?? existingImageUrl;
 
   return (
-    <PageContainer>
+    <>
       <h1 className="text-xl font-semibold text-center text-gray-900 mb-8">
         商品編集
       </h1>
@@ -152,6 +151,6 @@ export default function ItemEdit() {
           </Link>
         </div>
       </form>
-    </PageContainer>
+    </>
   );
 }

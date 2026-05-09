@@ -2,7 +2,6 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { API_BASE } from "~/lib/api";
-import PageContainer from "~/components/PageContainer";
 
 export const Route = createFileRoute("/supermarkets/")({
   component: Supermarkets,
@@ -30,7 +29,7 @@ export default function Supermarkets() {
   const filtered = supermarkets.filter((s) => s.name.includes(search));
 
   return (
-    <PageContainer>
+    <>
       <h1 className="text-xl font-semibold text-center text-gray-900 mb-4">
         スーパー一覧
       </h1>
@@ -93,6 +92,6 @@ export default function Supermarkets() {
           ))
         )}
       </div>
-    </PageContainer>
+    </>
   );
 }

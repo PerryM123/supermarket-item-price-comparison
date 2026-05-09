@@ -2,7 +2,6 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { API_BASE } from "~/lib/api";
-import PageContainer from "~/components/PageContainer";
 
 export const Route = createFileRoute("/items/$id/")({
   component: ItemDetail,
@@ -57,7 +56,7 @@ export default function ItemDetail() {
   document.title = item.name;
 
   return (
-    <PageContainer>
+    <>
       {item.image_url ? (
         <img
           src={item.image_url}
@@ -133,6 +132,6 @@ export default function ItemDetail() {
           スーパー＆価格を追加
         </Link>
       </div>
-    </PageContainer>
+    </>
   );
 }

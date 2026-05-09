@@ -2,7 +2,6 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { API_BASE } from "~/lib/api";
-import PageContainer from "~/components/PageContainer";
 
 export const Route = createFileRoute("/items/$id/prices/$priceId/edit")({
   component: ItemPriceEdit,
@@ -76,7 +75,7 @@ export default function ItemPriceEdit() {
   }
 
   return (
-    <PageContainer>
+    <>
       <div className="text-center mb-8">
         <h1 className="text-xl font-semibold text-gray-900 mb-1">
           価格の編集
@@ -146,6 +145,6 @@ export default function ItemPriceEdit() {
           </Link>
         </div>
       </form>
-    </PageContainer>
+    </>
   );
 }

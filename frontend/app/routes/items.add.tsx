@@ -1,7 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { API_BASE } from "~/lib/api";
-import PageContainer from "~/components/PageContainer";
 
 export const Route = createFileRoute("/items/add")({
   component: ItemsAdd,
@@ -52,7 +51,7 @@ export default function ItemsAdd() {
   }
 
   return (
-    <PageContainer>
+    <>
       <h1 className="text-xl font-semibold text-center text-gray-900 mb-8">
         商品追加
       </h1>
@@ -134,6 +133,6 @@ export default function ItemsAdd() {
           </Link>
         </div>
       </form>
-    </PageContainer>
+    </>
   );
 }
