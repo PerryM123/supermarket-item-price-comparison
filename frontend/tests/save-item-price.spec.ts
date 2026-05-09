@@ -19,7 +19,7 @@ test('User can register a supermarket, item, and item price', async ({
   const itemName = 'A Sample Item 1'
   await page.goto('http://local.super-price-check.com:8082/');
   await page.getByRole('link', { name: 'スーパー一覧', exact: true }).click();
-  await page.getByRole('link', { name: '商品追加' }).click();
+  await page.getByRole('link', { name: 'スーパー追加' }).click();
   await page.getByRole('textbox', { name: 'スーパーの名前' }).click();
   await page.getByRole('textbox', { name: 'スーパーの名前' }).fill(storeName);
   await page.getByRole('button', { name: '保存' }).click();

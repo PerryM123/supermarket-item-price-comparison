@@ -1,11 +1,12 @@
-import { Link } from "react-router";
-import type { Route } from "./+types/home";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
-export function meta({}: Route.MetaArgs) {
-  return [{ title: "スーパー比較" }];
-}
+export const Route = createFileRoute("/")({
+  component: Home,
+});
 
-export default function Home() {
+function Home() {
+  document.title = "スーパー比較";
+
   return (
     <div className="flex-1 bg-white flex flex-col items-center justify-center px-6 text-center">
       <div className="max-w-sm w-full flex flex-col items-center gap-10">

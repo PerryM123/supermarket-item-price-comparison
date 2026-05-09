@@ -1,26 +1,34 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { API_BASE } from "~/lib/api";
 import PageContainer from "~/components/PageContainer";
 
-export const Route = createFileRoute("/supermarkets/add")({
-  component: SupermarketsAdd,
+export const Route = createFileRoute("/supermarkets/$id/edit")({
+  component: SupermarketsEdit,
 });
 
-export default function SupermarketsAdd() {
-  document.title = "スーパー追加";
+export default function SupermarketsEdit() {
+  document.title = "スーパー編集";
+  const { id } = Route.useParams();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/supermarkets/${id}`)
+      .then((r) => r.json())
+      .then((data) => setName(data.name ?? ""))
+      .catch(() => {});
+  }, [id]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE}/supermarkets`, {
-        method: "POST",
+      const res = await fetch(`${API_BASE}/supermarkets/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
@@ -36,7 +44,7 @@ export default function SupermarketsAdd() {
   return (
     <PageContainer>
       <h1 className="text-xl font-semibold text-center text-gray-900 mb-8">
-        スーパー追加
+        スーパー編集
       </h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">

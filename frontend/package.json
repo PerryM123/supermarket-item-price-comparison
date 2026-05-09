@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
-    "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc",
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "typecheck": "tsc",
     "e2e": "playwright test",
     "e2e:headed": "playwright test --headed",
     "e2e:ui": "playwright test --ui",
@@ -14,20 +14,19 @@
     "e2e:codegen": "playwright codegen"
   },
   "dependencies": {
-    "@react-router/node": "7.14.0",
-    "@react-router/serve": "7.14.0",
-    "isbot": "^5.1.36",
+    "@tanstack/react-query": "^5.90.3",
+    "@tanstack/react-router": "^1.114.3",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-router": "7.14.0"
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
-    "@react-router/dev": "7.14.0",
     "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/router-plugin": "^1.114.3",
     "@types/node": "^22",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
     "dotenv": "^17.4.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
