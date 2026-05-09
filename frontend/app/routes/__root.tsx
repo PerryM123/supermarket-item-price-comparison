@@ -1,5 +1,6 @@
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import Header from "~/components/Header";
+import Notifications from "~/components/Notifications";
 import "~/app.css";
 
 export const Route = createRootRoute({
@@ -9,6 +10,7 @@ export const Route = createRootRoute({
       <div className="pt-16 min-h-[calc(100vh-4rem)] flex flex-col">
         <Outlet />
       </div>
+      <Notifications />
     </>
   ),
 });
