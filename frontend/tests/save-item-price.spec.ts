@@ -64,8 +64,9 @@ test('User can register a supermarket, item, and item price', async ({
   await page.getByRole('link', { name: 'スーパー一覧', exact: true }).click();
   await page.getByRole('link', { name: '編集' }).click();
   await expect(page.getByText('スーパー編集')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'スーパーの名前' })).toHaveValue(storeName);
   await page.getByRole('textbox', { name: 'スーパーの名前' }).click();
-  await page.getByRole('textbox', { name: 'スーパーの名前' }).fill('A Store Name Here (Edited)');
+  await page.getByRole('textbox', { name: 'スーパーの名前' }).fill(`${storeName} (Edited)`);
   await page.getByRole('button', { name: '保存' }).click();
-  await expect(page.getByText('A Store Name Here (Edited)')).toBeVisible();
+  await expect(page.getByText(`${storeName} (Edited)`)).toBeVisible();
 })
