@@ -1,4 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { API_BASE } from "~/lib/api";
 
@@ -10,23 +11,46 @@ export default function ItemEdit() {
   document.title = "商品編集";
   const { id } = Route.useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [newPreview, setNewPreview] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { data: itemData } = useQuery({
+    queryKey: ["items", id],
+    queryFn: async () => {
+      const r = await fetch(`${API_BASE}/items/${id}`);
+      if (!r.ok) throw new Error("Network error");
+      return r.json();
+    },
+  });
+
   useEffect(() => {
-    fetch(`${API_BASE}/items/${id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setName(data.name ?? "");
-        setExistingImageUrl(data.image_url ?? null);
-      })
-      .catch(() => {});
-  }, [id]);
+    if (itemData) {
+      setName(itemData.name ?? "");
+      setExistingImageUrl(itemData.image_url ?? null);
+    }
+  }, [itemData]);
+
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async () => {
+      const formData = new FormData();
+      formData.append("_method", "PUT");
+      formData.append("name", name);
+      if (newImage) formData.append("image", newImage);
+      const res = await fetch(`${API_BASE}/items/${id}`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items", id] });
+      navigate({ to: "/items/$id", params: { id } });
+    },
+  });
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -43,26 +67,9 @@ export default function ItemEdit() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append("_method", "PUT");
-      formData.append("name", name);
-      if (newImage) formData.append("image", newImage);
-      const res = await fetch(`${API_BASE}/items/${id}`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error();
-      navigate({ to: "/items/$id", params: { id } });
-    } catch {
-      setError("保存に失敗しました。もう一度お試しください。");
-    } finally {
-      setSubmitting(false);
-    }
+    mutate();
   }
 
   const previewSrc = newPreview ?? existingImageUrl;
@@ -129,18 +136,18 @@ export default function ItemEdit() {
           )}
         </div>
 
-        {error && (
-          <p className="text-sm text-red-500 text-center -mt-4">{error}</p>
+        {isError && (
+          <p className="text-sm text-red-500 text-center -mt-4">保存に失敗しました。もう一度お試しください。</p>
         )}
 
         <div className="flex flex-col gap-3">
           <button
             type="submit"
-            disabled={submitting}
+            disabled={isPending}
             className="w-full py-3 rounded-full text-white text-sm font-medium transition-opacity disabled:opacity-50"
             style={{ backgroundColor: "#f1582c" }}
           >
-            {submitting ? "保存中..." : "保存"}
+            {isPending ? "保存中..." : "保存"}
           </button>
           <Link
             to="/items/$id"

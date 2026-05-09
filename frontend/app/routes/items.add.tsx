@@ -1,4 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { API_BASE } from "~/lib/api";
 
@@ -9,12 +10,28 @@ export const Route = createFileRoute("/items/add")({
 export default function ItemsAdd() {
   document.title = "商品追加";
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async () => {
+      const formData = new FormData();
+      formData.append("name", name);
+      if (image) formData.append("image", image);
+      const res = await fetch(`${API_BASE}/items`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      navigate({ to: "/items" });
+    },
+  });
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -29,25 +46,9 @@ export default function ItemsAdd() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append("name", name);
-      if (image) formData.append("image", image);
-      const res = await fetch(`${API_BASE}/items`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error();
-      navigate({ to: "/items" });
-    } catch {
-      setError("保存に失敗しました。もう一度お試しください。");
-    } finally {
-      setSubmitting(false);
-    }
+    mutate();
   }
 
   return (
@@ -112,18 +113,18 @@ export default function ItemsAdd() {
           )}
         </div>
 
-        {error && (
-          <p className="text-sm text-red-500 text-center -mt-4">{error}</p>
+        {isError && (
+          <p className="text-sm text-red-500 text-center -mt-4">保存に失敗しました。もう一度お試しください。</p>
         )}
 
         <div className="flex flex-col gap-3">
           <button
             type="submit"
-            disabled={submitting}
+            disabled={isPending}
             className="w-full py-3 rounded-full text-white text-sm font-medium transition-opacity disabled:opacity-50"
             style={{ backgroundColor: "#f1582c" }}
           >
-            {submitting ? "保存中..." : "保存"}
+            {isPending ? "保存中..." : "保存"}
           </button>
           <Link
             to="/items"

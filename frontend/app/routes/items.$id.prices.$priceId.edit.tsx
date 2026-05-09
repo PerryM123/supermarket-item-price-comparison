@@ -1,5 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { API_BASE } from "~/lib/api";
 
@@ -21,10 +21,9 @@ export default function ItemPriceEdit() {
   document.title = "価格の編集";
   const { id, priceId } = Route.useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [supermarketId, setSupermarketId] = useState("");
   const [price, setPrice] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const { data: item } = useQuery({
     queryKey: ["items", id],
@@ -55,23 +54,24 @@ export default function ItemPriceEdit() {
     },
   });
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async () => {
       const res = await fetch(`${API_BASE}/items/${id}/prices/${priceId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ supermarket_id: Number(supermarketId), price: Number(price) }),
       });
       if (!res.ok) throw new Error();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items", id] });
       navigate({ to: "/items/$id", params: { id } });
-    } catch {
-      setError("保存に失敗しました。もう一度お試しください。");
-    } finally {
-      setSubmitting(false);
-    }
+    },
+  });
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    mutate();
   }
 
   return (
@@ -123,18 +123,18 @@ export default function ItemPriceEdit() {
           />
         </div>
 
-        {error && (
-          <p className="text-sm text-red-500 text-center">{error}</p>
+        {isError && (
+          <p className="text-sm text-red-500 text-center">保存に失敗しました。もう一度お試しください。</p>
         )}
 
         <div className="flex flex-col gap-3 mt-2">
           <button
             type="submit"
-            disabled={submitting}
+            disabled={isPending}
             className="w-full py-3 rounded-full text-white text-sm font-medium transition-opacity disabled:opacity-50"
             style={{ backgroundColor: "#f1582c" }}
           >
-            {submitting ? "保存中..." : "保存"}
+            {isPending ? "保存中..." : "保存"}
           </button>
           <Link
             to="/items/$id"
