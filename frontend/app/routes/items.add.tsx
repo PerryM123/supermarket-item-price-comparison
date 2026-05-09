@@ -1,7 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { API_BASE } from "~/lib/api";
+import { useCreateItem } from "~/features/items/hooks/useCreateItem";
 
 export const Route = createFileRoute("/items/add")({
   component: ItemsAdd,
@@ -10,28 +9,12 @@ export const Route = createFileRoute("/items/add")({
 export default function ItemsAdd() {
   document.title = "商品追加";
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { mutate, isPending, isError } = useMutation({
-    mutationFn: async () => {
-      const formData = new FormData();
-      formData.append("name", name);
-      if (image) formData.append("image", image);
-      const res = await fetch(`${API_BASE}/items`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-      navigate({ to: "/items" });
-    },
-  });
+  const { mutate, isPending, isError } = useCreateItem();
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -46,9 +29,14 @@ export default function ItemsAdd() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    mutate();
+    const formData = new FormData();
+    formData.append("name", name);
+    if (image) formData.append("image", image);
+    mutate(formData, {
+      onSuccess: () => navigate({ to: "/items" }),
+    });
   }
 
   return (

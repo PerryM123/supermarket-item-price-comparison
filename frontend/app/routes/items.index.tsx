@@ -1,39 +1,16 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { API_BASE } from "~/lib/api";
+import { useItems } from "~/features/items/hooks/useItems";
 
 export const Route = createFileRoute("/items/")({
   component: Items,
 });
 
-interface Item {
-  id: number;
-  name: string;
-  imageUrl: string;
-  created_at: string;
-  updated_at: string;
-}
-
 export default function Items() {
   document.title = "商品一覧";
   const [search, setSearch] = useState("");
 
-  const { data: items = [] } = useQuery<Item[]>({
-    queryKey: ["items"],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE}/items`);
-      if (!response.ok) throw new Error("Network error");
-      const result = await response.json();
-      return result.items.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        imageUrl: item.image_url,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-      }));
-    },
-  });
+  const { data: items = [] } = useItems();
 
   const filtered = items.filter((item) => item.name.includes(search));
 

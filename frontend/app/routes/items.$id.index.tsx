@@ -1,25 +1,10 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { API_BASE } from "~/lib/api";
+import { useItem } from "~/features/items/hooks/useItem";
 
 export const Route = createFileRoute("/items/$id/")({
   component: ItemDetail,
 });
-
-interface Price {
-  id: number;
-  price: number;
-  supermarket: { id: number; name: string };
-}
-
-interface ItemDetail {
-  id: number;
-  name: string;
-  image_url: string | null;
-  updated_at: string;
-  prices: Price[];
-}
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -30,14 +15,7 @@ export default function ItemDetail() {
   const { id } = Route.useParams();
   const [sortAsc, setSortAsc] = useState(true);
 
-  const { data: item } = useQuery<ItemDetail>({
-    queryKey: ["items", id],
-    queryFn: async () => {
-      const r = await fetch(`${API_BASE}/items/${id}`);
-      if (!r.ok) throw new Error("Network error");
-      return r.json();
-    },
-  });
+  const { data: item } = useItem(id);
 
   const sorted = item
     ? [...item.prices].sort((a, b) =>

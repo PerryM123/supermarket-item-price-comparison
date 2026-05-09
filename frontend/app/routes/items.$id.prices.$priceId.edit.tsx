@@ -1,16 +1,12 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { API_BASE } from "~/lib/api";
+import { useEffect, useState } from "react";
+import { useItem } from "~/features/items/hooks/useItem";
+import { useUpdatePrice } from "~/features/items/hooks/useUpdatePrice";
+import { useSupermarkets } from "~/features/supermarkets/hooks/useSupermarkets";
 
 export const Route = createFileRoute("/items/$id/prices/$priceId/edit")({
   component: ItemPriceEdit,
 });
-
-interface Supermarket {
-  id: number;
-  name: string;
-}
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -21,57 +17,30 @@ export default function ItemPriceEdit() {
   document.title = "価格の編集";
   const { id, priceId } = Route.useParams();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [supermarketId, setSupermarketId] = useState("");
   const [price, setPrice] = useState("");
 
-  const { data: item } = useQuery({
-    queryKey: ["items", id],
-    queryFn: async () => {
-      const r = await fetch(`${API_BASE}/items/${id}`);
-      if (!r.ok) throw new Error("Network error");
-      return r.json();
-    },
-    select: (data) => {
-      const match = data.prices?.find(
-        (p: { id: number }) => String(p.id) === priceId
-      );
-      if (match && !price) {
+  const { data: item } = useItem(id);
+  const { data: supermarkets = [] } = useSupermarkets();
+
+  useEffect(() => {
+    if (item && !price) {
+      const match = item.prices.find((p) => String(p.id) === priceId);
+      if (match) {
         setPrice(String(match.price));
         setSupermarketId(String(match.supermarket.id));
       }
-      return { updatedAt: data.updated_at as string };
-    },
-  });
+    }
+  }, [item]);
 
-  const { data: supermarkets = [] } = useQuery<Supermarket[]>({
-    queryKey: ["supermarkets"],
-    queryFn: async () => {
-      const r = await fetch(`${API_BASE}/supermarkets`);
-      if (!r.ok) throw new Error("Network error");
-      const data = await r.json();
-      return data.supermarkets ?? [];
-    },
-  });
+  const { mutate, isPending, isError } = useUpdatePrice(id, priceId);
 
-  const { mutate, isPending, isError } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`${API_BASE}/items/${id}/prices/${priceId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ supermarket_id: Number(supermarketId), price: Number(price) }),
-      });
-      if (!res.ok) throw new Error();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items", id] });
-      navigate({ to: "/items/$id", params: { id } });
-    },
-  });
-
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    mutate();
+    mutate(
+      { supermarket_id: Number(supermarketId), price: Number(price) },
+      { onSuccess: () => navigate({ to: "/items/$id", params: { id } }) }
+    );
   }
 
   return (
@@ -80,9 +49,9 @@ export default function ItemPriceEdit() {
         <h1 className="text-xl font-semibold text-gray-900 mb-1">
           価格の編集
         </h1>
-        {item?.updatedAt && (
+        {item?.updated_at && (
           <p className="text-xs text-gray-400">
-            最終更新: {formatDate(item.updatedAt)}
+            最終更新: {formatDate(item.updated_at)}
           </p>
         )}
       </div>

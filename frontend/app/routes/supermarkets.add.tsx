@@ -1,6 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { API_BASE } from "~/lib/api";
+import { useCreateSupermarket } from "~/features/supermarkets/hooks/useCreateSupermarket";
 
 export const Route = createFileRoute("/supermarkets/add")({
   component: SupermarketsAdd,
@@ -10,26 +10,12 @@ export default function SupermarketsAdd() {
   document.title = "スーパー追加";
   const navigate = useNavigate();
   const [name, setName] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const { mutate, isPending, isError } = useCreateSupermarket();
+
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API_BASE}/supermarkets`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-      if (!res.ok) throw new Error();
-      navigate({ to: "/supermarkets" });
-    } catch {
-      setError("保存に失敗しました。もう一度お試しください。");
-    } finally {
-      setSubmitting(false);
-    }
+    mutate({ name }, { onSuccess: () => navigate({ to: "/supermarkets" }) });
   }
 
   return (
@@ -54,18 +40,18 @@ export default function SupermarketsAdd() {
           />
         </div>
 
-        {error && (
-          <p className="text-sm text-red-500 text-center -mt-4">{error}</p>
+        {isError && (
+          <p className="text-sm text-red-500 text-center -mt-4">保存に失敗しました。もう一度お試しください。</p>
         )}
 
         <div className="flex flex-col gap-3">
           <button
             type="submit"
-            disabled={submitting}
+            disabled={isPending}
             className="w-full py-3 rounded-full text-white text-sm font-medium transition-opacity disabled:opacity-50"
             style={{ backgroundColor: "#f1582c" }}
           >
-            {submitting ? "保存中..." : "保存"}
+            {isPending ? "保存中..." : "保存"}
           </button>
           <Link
             to="/supermarkets"

@@ -1,21 +1,12 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { API_BASE } from "~/lib/api";
+import { useEffect, useState } from "react";
+import { useItem } from "~/features/items/hooks/useItem";
+import { useCreatePrice } from "~/features/items/hooks/useCreatePrice";
+import { useSupermarkets } from "~/features/supermarkets/hooks/useSupermarkets";
 
 export const Route = createFileRoute("/items/$id/add")({
   component: ItemAdd,
 });
-
-interface ItemSummary {
-  name: string;
-  updated_at: string;
-}
-
-interface Supermarket {
-  id: number;
-  name: string;
-}
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -25,53 +16,28 @@ function formatDate(iso: string): string {
 export default function ItemAdd() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [supermarketId, setSupermarketId] = useState("");
   const [price, setPrice] = useState("");
 
-  const { data: item } = useQuery<ItemSummary>({
-    queryKey: ["items", id],
-    queryFn: async () => {
-      const r = await fetch(`${API_BASE}/items/${id}`);
-      if (!r.ok) throw new Error("Network error");
-      return r.json();
-    },
-  });
+  const { data: item } = useItem(id);
+  const { data: supermarkets = [] } = useSupermarkets();
 
-  const { data: supermarkets = [] } = useQuery<Supermarket[]>({
-    queryKey: ["supermarkets"],
-    queryFn: async () => {
-      const r = await fetch(`${API_BASE}/supermarkets`);
-      if (!r.ok) throw new Error("Network error");
-      const data = await r.json();
-      return data.supermarkets ?? [];
-    },
-    select: (data) => {
-      if (data.length && !supermarketId) setSupermarketId(String(data[0].id));
-      return data;
-    },
-  });
+  useEffect(() => {
+    if (supermarkets.length && !supermarketId) {
+      setSupermarketId(String(supermarkets[0].id));
+    }
+  }, [supermarkets]);
+
+  const { mutate, isPending, isError } = useCreatePrice(id);
 
   if (item) document.title = `${item.name}の価格追加`;
 
-  const { mutate, isPending, isError } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`${API_BASE}/items/${id}/prices`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ supermarket_id: Number(supermarketId), price: Number(price) }),
-      });
-      if (!res.ok) throw new Error();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items", id] });
-      navigate({ to: "/items/$id", params: { id } });
-    },
-  });
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    mutate();
+    mutate(
+      { supermarket_id: Number(supermarketId), price: Number(price) },
+      { onSuccess: () => navigate({ to: "/items/$id", params: { id } }) }
+    );
   }
 
   return (

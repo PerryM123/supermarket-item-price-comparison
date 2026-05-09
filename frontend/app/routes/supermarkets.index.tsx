@@ -1,30 +1,16 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { API_BASE } from "~/lib/api";
+import { useSupermarkets } from "~/features/supermarkets/hooks/useSupermarkets";
 
 export const Route = createFileRoute("/supermarkets/")({
   component: Supermarkets,
 });
 
-interface Supermarket {
-  id: number;
-  name: string;
-}
-
 export default function Supermarkets() {
   document.title = "スーパー一覧";
   const [search, setSearch] = useState("");
 
-  const { data: supermarkets = [] } = useQuery<Supermarket[]>({
-    queryKey: ["supermarkets"],
-    queryFn: async () => {
-      const r = await fetch(`${API_BASE}/supermarkets`);
-      if (!r.ok) throw new Error("Network error");
-      const data = await r.json();
-      return data.supermarkets ?? [];
-    },
-  });
+  const { data: supermarkets = [] } = useSupermarkets();
 
   const filtered = supermarkets.filter((s) => s.name.includes(search));
 

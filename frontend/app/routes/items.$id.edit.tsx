@@ -1,7 +1,7 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { API_BASE } from "~/lib/api";
+import { useItem } from "~/features/items/hooks/useItem";
+import { useUpdateItem } from "~/features/items/hooks/useUpdateItem";
 
 export const Route = createFileRoute("/items/$id/edit")({
   component: ItemEdit,
@@ -11,21 +11,13 @@ export default function ItemEdit() {
   document.title = "商品編集";
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [newPreview, setNewPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: itemData } = useQuery({
-    queryKey: ["items", id],
-    queryFn: async () => {
-      const r = await fetch(`${API_BASE}/items/${id}`);
-      if (!r.ok) throw new Error("Network error");
-      return r.json();
-    },
-  });
+  const { data: itemData } = useItem(id);
 
   useEffect(() => {
     if (itemData) {
@@ -34,23 +26,7 @@ export default function ItemEdit() {
     }
   }, [itemData]);
 
-  const { mutate, isPending, isError } = useMutation({
-    mutationFn: async () => {
-      const formData = new FormData();
-      formData.append("_method", "PUT");
-      formData.append("name", name);
-      if (newImage) formData.append("image", newImage);
-      const res = await fetch(`${API_BASE}/items/${id}`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items", id] });
-      navigate({ to: "/items/$id", params: { id } });
-    },
-  });
+  const { mutate, isPending, isError } = useUpdateItem(id);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -67,9 +43,15 @@ export default function ItemEdit() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    mutate();
+    const formData = new FormData();
+    formData.append("_method", "PUT");
+    formData.append("name", name);
+    if (newImage) formData.append("image", newImage);
+    mutate(formData, {
+      onSuccess: () => navigate({ to: "/items/$id", params: { id } }),
+    });
   }
 
   const previewSrc = newPreview ?? existingImageUrl;
