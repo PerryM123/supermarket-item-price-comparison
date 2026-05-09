@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
@@ -26,7 +27,7 @@ class ItemController extends Controller
     {
         $validated = $request->validate([
             'name'  => 'required|string|max:255',
-            'image' => 'nullable|image|max:5120',
+            'image' => 'nullable|mimetypes:image/jpeg,image/png,image/gif,image/webp,image/avif|max:5120',
         ]);
 
         $imagePath = null;
@@ -59,11 +60,15 @@ class ItemController extends Controller
 
     public function update(Request $request, Item $item): JsonResponse
     {
-        $validated = $request->validate([
-            'name'  => 'sometimes|required|string|max:255',
-            'image' => 'nullable|image|max:5120',
-        ]);
-
+        try {
+            $validated = $request->validate([
+                'name'  => 'sometimes|required|string|max:255',
+                'image' => 'nullable|mimetypes:image/jpeg,image/png,image/gif,image/webp,image/avif|max:5120',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::info("Validation errors", $e->errors());
+            throw $e;
+        }
         if ($request->hasFile('image')) {
             $this->deleteOldImage($item->image_url);
             $validated['image_url'] = $request->file('image')->store('items', 'garage');
