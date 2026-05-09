@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths: true,
     },
     server: {
+      watch: {
+        ignored: ['**/tests/**'],
+      },
       host: "0.0.0.0",
       hmr: {
         clientPort: process.env.HMR_CLIENT_PORT
