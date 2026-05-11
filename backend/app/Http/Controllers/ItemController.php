@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -93,10 +94,16 @@ class ItemController extends Controller
             return null;
         }
 
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('garage-public');
+        $path = $this->extractPath($stored);
 
-        return $disk->temporaryUrl($this->extractPath($stored), now()->addHour());
+        return Cache::remember('signed_url:' . md5($path), now()->addMinutes(55), function () use ($path) {
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('garage-public');
+
+            return $disk->temporaryUrl($path, now()->addHour(), [
+                'ResponseCacheControl' => 'public, max-age=3600',
+            ]);
+        });
     }
 
     private function extractPath(string $stored): string
@@ -119,6 +126,8 @@ class ItemController extends Controller
             return;
         }
 
-        Storage::disk('garage')->delete($this->extractPath($stored));
+        $path = $this->extractPath($stored);
+        Cache::forget('signed_url:' . md5($path));
+        Storage::disk('garage')->delete($path);
     }
 }
