@@ -35,7 +35,9 @@ export function useItemPrices({
       if (!r.ok) throw new Error("Network error");
       return r.json();
     },
+    // TODO: 動作確認中
     staleTime: Infinity,
+    // TODO: 動作確認中
     gcTime: 1000 * 5
   });
 }
