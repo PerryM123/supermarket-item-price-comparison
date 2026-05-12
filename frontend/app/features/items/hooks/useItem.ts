@@ -4,6 +4,7 @@ import { API_BASE } from "~/lib/api";
 export interface Price {
   id: number;
   price: number;
+  created_at: string;
   supermarket: { id: number; name: string };
 }
 
