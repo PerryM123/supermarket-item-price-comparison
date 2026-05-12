@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\ItemPrice;
+use App\Models\Item;
+use App\Models\Supermarket;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ItemPriceSeeder extends Seeder
 {
@@ -12,25 +14,25 @@ class ItemPriceSeeder extends Seeder
 
     public function run(): void
     {
-        // [item_id, supermarket_id, price]
-        $prices = [
-            [1, 1, 169],
-            [1, 2, 199],
-            [1, 3, 143],
-            [2, 1, 171],
-            [2, 2, 127],
-            [2, 3, 222],
-            [3, 1, 144],
-            [3, 2, 152],
-            [3, 3, 188],
-        ];
+        $itemIds = Item::pluck('id')->all();
+        $supermarketIds = Supermarket::pluck('id')->all();
+        $now = now();
 
-        foreach ($prices as [$itemId, $supermarketId, $price]) {
-            ItemPrice::create([
-                'item_id'        => $itemId,
-                'supermarket_id' => $supermarketId,
-                'price'          => $price,
-            ]);
+        $rows = [];
+        foreach ($itemIds as $itemId) {
+            foreach ($supermarketIds as $supermarketId) {
+                $rows[] = [
+                    'item_id'        => $itemId,
+                    'supermarket_id' => $supermarketId,
+                    'price'          => rand(100, 1000),
+                    'created_at'     => $now,
+                    'updated_at'     => $now,
+                ];
+            }
+        }
+
+        foreach (array_chunk($rows, 500) as $chunk) {
+            DB::table('item_price')->insert($chunk);
         }
     }
 }

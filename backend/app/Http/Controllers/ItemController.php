@@ -54,6 +54,7 @@ class ItemController extends Controller
             'prices'     => $item->prices->map(fn($p) => [
                 'id'          => $p->id,
                 'price'       => $p->price,
+                'created_at'  => $p->created_at->format('Y-m-d\TH:i:s\Z'),
                 'supermarket' => ['id' => $p->supermarket->id, 'name' => $p->supermarket->name],
             ]),
         ]);

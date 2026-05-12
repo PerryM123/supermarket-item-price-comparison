@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::apiResource('items', ItemController::class);
+Route::get('/items/{item}/prices', [ItemPriceController::class, 'index']);
 Route::post('/items/{item}/prices', [ItemPriceController::class, 'store']);
 Route::put('/items/{item}/prices/{itemPrice}', [ItemPriceController::class, 'update']);
 Route::apiResource('supermarkets', SupermarketController::class);
