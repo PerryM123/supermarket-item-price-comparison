@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { API_BASE } from "~/lib/api";
+import { API_BASE, STATIC_QUERY_CONFIG } from "~/lib/api";
 
 export interface Price {
   id: number;
@@ -23,5 +23,6 @@ export function useItem(id: string) {
       if (!r.ok) throw new Error("Network error");
       return r.json();
     },
+    ...STATIC_QUERY_CONFIG,
   });
 }

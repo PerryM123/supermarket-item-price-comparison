@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { API_BASE } from "~/lib/api";
+import { API_BASE, STATIC_QUERY_CONFIG } from "~/lib/api";
 
 export interface Supermarket {
   id: number;
@@ -15,7 +15,6 @@ export function useSupermarkets() {
       const data = await r.json();
       return data.supermarkets ?? [];
     },
-    staleTime: Infinity,
-    gcTime: 1000 * 60 * 10,
+    ...STATIC_QUERY_CONFIG,
   });
 }
