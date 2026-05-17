@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { useItem } from "~/features/items/hooks/useItem";
 
@@ -13,6 +13,7 @@ function formatDate(iso: string): string {
 
 export default function ItemDetail() {
   const { id } = Route.useParams();
+  const router = useRouter();
   const [sortAsc, setSortAsc] = useState(true);
 
   const { data: item } = useItem(id);
@@ -100,7 +101,7 @@ export default function ItemDetail() {
         )}
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-col gap-3">
         <Link
           to="/items/$id/add"
           params={{ id }}
@@ -109,6 +110,12 @@ export default function ItemDetail() {
         >
           スーパー＆価格を追加
         </Link>
+        <button
+          onClick={() => router.history.back()}
+          className="block w-full py-3 rounded-full text-sm font-medium text-gray-600 border border-gray-300 hover:border-gray-400 transition-colors text-center cursor-pointer"
+        >
+          商品一覧に戻る
+        </button>
       </div>
     </>
   );
