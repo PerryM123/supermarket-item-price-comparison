@@ -62,7 +62,7 @@ export default function Items() {
           >
             <div className="w-full aspect-square rounded-xl">
               <div className="flex items-center h-full">
-                <img src={item.imageUrl} alt={item.name} />
+                <img loading="lazy" src={item.imageUrl} alt={item.name} />
               </div>
             </div>
             <span className="text-sm text-gray-800">{item.name}</span>
