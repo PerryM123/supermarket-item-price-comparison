@@ -15,5 +15,7 @@ export function useSupermarkets() {
       const data = await r.json();
       return data.supermarkets ?? [];
     },
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 10,
   });
 }

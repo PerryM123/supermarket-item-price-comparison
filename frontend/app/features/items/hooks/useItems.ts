@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_BASE } from "~/lib/api";
 
 export interface Item {
@@ -36,5 +36,7 @@ export function useItems() {
       const result = await response.json();
       return result.items.map(mapItem);
     },
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 10,
   });
 }
