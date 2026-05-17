@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useItem } from "~/features/items/hooks/useItem";
 import { useUpdatePrice } from "~/features/items/hooks/useUpdatePrice";
@@ -17,6 +17,7 @@ export default function ItemPriceEdit() {
   document.title = "価格の編集";
   const { id, priceId } = Route.useParams();
   const navigate = useNavigate();
+  const router = useRouter();
   const [supermarketId, setSupermarketId] = useState("");
   const [price, setPrice] = useState("");
 
@@ -105,13 +106,13 @@ export default function ItemPriceEdit() {
           >
             {isPending ? "保存中..." : "保存"}
           </button>
-          <Link
-            to="/items/$id"
-            params={{ id }}
-            className="block w-full py-3 border border-gray-300 rounded-full text-sm text-center text-gray-600 hover:border-gray-400 transition-colors"
+          <button
+            type="button"
+            onClick={() => router.history.back()}
+            className="block w-full py-3 border border-gray-300 rounded-full text-sm text-center text-gray-600 hover:border-gray-400 transition-colors cursor-pointer"
           >
             キャンセル
-          </Link>
+          </button>
         </div>
       </form>
     </>

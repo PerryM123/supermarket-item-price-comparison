@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useCreateItem } from "~/features/items/hooks/useCreateItem";
 
@@ -9,6 +9,7 @@ export const Route = createFileRoute("/items/add")({
 export default function ItemsAdd() {
   document.title = "商品追加";
   const navigate = useNavigate();
+  const router = useRouter();
   const [name, setName] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -114,12 +115,13 @@ export default function ItemsAdd() {
           >
             {isPending ? "保存中..." : "保存"}
           </button>
-          <Link
-            to="/items"
-            className="block w-full py-3 border border-gray-300 rounded-full text-sm text-center text-gray-600 hover:border-gray-400 transition-colors"
+          <button
+            type="button"
+            onClick={() => router.history.back()}
+            className="block w-full py-3 border border-gray-300 rounded-full text-sm text-center text-gray-600 hover:border-gray-400 transition-colors cursor-pointer"
           >
             キャンセル
-          </Link>
+          </button>
         </div>
       </form>
     </>
