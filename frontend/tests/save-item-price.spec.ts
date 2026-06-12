@@ -51,14 +51,14 @@ test('User can register a supermarket, item, and item price', async ({
   await expect(page.getByText(storeName)).toBeVisible();
   await expect(page.getByText('199円')).toBeVisible();
   await page.getByRole('link', { name: '商品詳細を編集' }).click();
-  await page.getByRole('link', { name: 'キャンセル' }).click();
+  await page.getByRole('button', { name: 'キャンセル' }).click();
   await page.getByRole('link', { name: '編集', exact: true }).click();
   await expect(page.getByText('価格の編集')).toBeVisible();
   await page.getByRole('spinbutton', { name: '価格' }).click();
   await page.getByRole('spinbutton', { name: '価格' }).fill('201');
   await page.getByRole('button', { name: '保存' }).click();
   await page.getByRole('link', { name: '編集', exact: true }).click();
-  await page.getByRole('link', { name: 'キャンセル' }).click();
+  await page.getByRole('button', { name: 'キャンセル' }).click();
   await expect(page.getByText('201円')).toBeVisible();
   await page.getByRole('link', { name: 'いくらだったっけ？！' }).click();
   await page.getByRole('link', { name: 'スーパー一覧', exact: true }).click();

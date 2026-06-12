@@ -12,7 +12,8 @@
     "e2e:headed": "playwright test --headed",
     "e2e:ui": "playwright test --ui",
     "e2e:debug": "playwright test --debug",
-    "e2e:codegen": "playwright codegen"
+    "e2e:codegen": "playwright codegen",
+    "e2e:show-report": "playwright show-report"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.3",

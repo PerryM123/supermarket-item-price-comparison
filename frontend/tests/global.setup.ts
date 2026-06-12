@@ -4,7 +4,7 @@ export default async function globalSetup() {
   console.log('--------Preparing to seed test database--------')
   try {
     execSync(
-      `docker exec ${process.env.BACKEND_APP_CONTAINER_NAME} php artisan migrate:fresh --env=testing`,
+      `docker exec ${process.env.BACKEND_APP_CONTAINER_NAME} php artisan migrate:fresh`,
       {
         stdio: 'inherit'
       }
